@@ -6,8 +6,8 @@ This application is an AES encryption/decryption tool with an UI
 
 import base64
 from PySide6.QtCore import QSize, Qt, Slot
-from PySide6.QtWidgets import QApplication, QPushButton, QWidget, QGridLayout, QMainWindow, QLineEdit, QVBoxLayout, QLabel, QTextEdit, QTabWidget
-from PySide6.QtGui import QDoubleValidator, QIcon, QPixmap
+from PySide6.QtWidgets import QApplication, QPushButton, QWidget, QMainWindow, QLineEdit, QVBoxLayout, QLabel, QTextEdit, QTabWidget
+from PySide6.QtGui import QIcon, QPixmap
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad, unpad
 
@@ -55,11 +55,11 @@ class MainWindow(QMainWindow):
         self.encryption_layout.addWidget(self.cipher_text)
 
         self.encryption_send_button = QPushButton('Encrypt Message')
+        self.encryption_send_button.clicked.connect(self.encryption)
         self.encryption_layout.addWidget(self.encryption_send_button)
 
         self.encryption_error_label = QLabel()
         self.encryption_layout.addWidget(self.encryption_error_label)
-
 
         # Decryption page
         self.decryption_page = QWidget()
@@ -75,6 +75,22 @@ class MainWindow(QMainWindow):
         self.tab_bar.addTab(self.decryption_page, 'Decryption')
         self.central_layout.addWidget(self.tab_bar)
 
+    @Slot()
+    def encryption(self):
+        self.encryption_error_label.setText('')
+        message = self.message_text.toPlainText()
+        key = self.key_line.text()
+
+        if not len(key) in [16, 24, 32]:
+            self.encryption_error_label.setText('Your key has to be one of the following sizes: 16, 24, 32')
+            return
+
+        encryption_cipher = AES.new(key.encode('utf-8'), AES.MODE_CBC)
+        encrypted_message = base64.b64encode(encryption_cipher.encrypt(pad(message.encode('utf-8'), AES.block_size))).decode('utf-8')
+        iv = base64.b64encode(encryption_cipher.iv).decode('utf-8')
+
+        self.cipher_text.setText(encrypted_message)
+        self.iv_line.setText(iv)
 if __name__ == '__main__':
 
     app = QApplication()
