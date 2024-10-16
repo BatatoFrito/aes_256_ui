@@ -81,6 +81,10 @@ class MainWindow(QMainWindow):
         message = self.message_text.toPlainText()
         key = self.key_line.text()
 
+        if len(message) == 0:
+            self.encryption_error_label.setText("Your message can't be empty")
+            return
+
         if not len(key) in [16, 24, 32]:
             self.encryption_error_label.setText('Your key has to be one of the following sizes: 16, 24, 32')
             return
