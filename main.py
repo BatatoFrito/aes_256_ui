@@ -6,9 +6,8 @@ This application is an AES encryption/decryption tool with an UI
 
 import base64
 import re
-from PySide6.QtCore import QSize, Qt, Slot
+from PySide6.QtCore import Slot
 from PySide6.QtWidgets import QApplication, QPushButton, QWidget, QMainWindow, QLineEdit, QVBoxLayout, QLabel, QTextEdit, QTabWidget
-from PySide6.QtGui import QIcon, QPixmap
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad, unpad
 
@@ -71,7 +70,6 @@ class MainWindow(QMainWindow):
         self.decryption_page.setLayout(self.decryption_layout)
 
         # Decryption form
-
         self.dec_cipher_label = QLabel('Cipher')
         self.decryption_layout.addWidget(self.dec_cipher_label)
         self.dec_cipher_text = QTextEdit()
@@ -120,6 +118,7 @@ class MainWindow(QMainWindow):
             self.encryption_error_label.setText('Your key has to be one of the following sizes: 16, 24, 32')
             return
 
+        # Encrypts and encodes message and IV to Base64
         encryption_cipher = AES.new(key.encode('utf-8'), AES.MODE_CBC)
         encrypted_message = base64.b64encode(encryption_cipher.encrypt(pad(message.encode('utf-8'), AES.block_size))).decode('utf-8')
         iv = base64.b64encode(encryption_cipher.iv).decode('utf-8')
@@ -142,6 +141,14 @@ class MainWindow(QMainWindow):
         encrypted_message = base64.b64decode(self.dec_cipher_text.toPlainText())
         iv = base64.b64decode(self.dec_iv_line.text())
         key = self.dec_key_line.text()
+
+        if len(encrypted_message) == 0:
+            self.decryption_error_label.setText("Your cipher can't be empty")
+            return
+        
+        if len(iv) == 0:
+            self.decryption_error_label.setText("Your IV can't be empty")
+            return
 
         if not len(key) in [16, 24, 32]:
             self.decryption_error_label.setText('Your key has to be one of the following sizes: 16, 24, 32')
