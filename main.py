@@ -20,6 +20,7 @@ class MainWindow(QMainWindow):
 
         # Window settings
         self.setWindowTitle('AES Encryptor/Decryptor')
+        self.resize(635, 560)
         
         # Central widget settings
         self.central_widget = QWidget()
